@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "@src/*": ["src/*"],
+      "@utils/*": ["src/utils/*"],
+      "@test/*": ["src/tests/*"],
+      "@routes/*": ["src/routes/*"],
+      "@validators/*": ["src/validators/*"],
+      "@guards/*" : ["src/guards/*"],
+    }
+  },
+  "exclude": ["node_modules", "test", "dist", "**/*spec.ts"]
+}
