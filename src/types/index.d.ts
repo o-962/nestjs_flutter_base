@@ -1,9 +1,9 @@
 export {};
 
 declare global {
-  type BaseResponse = {
-    code: string;
-    status_code: number;
+  type BaseResponseOption = {
+    code?: string;
+    status_code?: number;
     message?: string | null;
     toast_body?: string | null;
     toast_header?: string | null;
@@ -13,19 +13,20 @@ declare global {
     refresh?: boolean;
     wait?: boolean;
     errors?: any;
+    error ?: any;
     data?: any;
     logout?:boolean,
     page? : string | null,
-    clearRoutes? : bool,
+    clear_routes? : boolean,
+    return_json? : boolean,
   };
 
-  type ResponseOptions = BaseResponse & {
-    returnJson?: boolean;
-  };
-
-  type ServerErrorResponseOptions = ResponseOptions & {
-    error?: any;
-  };
+  type ValidationErrorOption = BaseResponse & {
+    status_code ?: number
+  }
+  type ErrorOption = BaseResponse & {
+    error : any
+  }
 
   type AuthUser = {
     auth_id: string | number;

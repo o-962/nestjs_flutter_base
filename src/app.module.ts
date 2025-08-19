@@ -17,6 +17,8 @@ import { AppService } from './app.service';
 import { dbConfig } from './dbConfig';
 import { PermissionsModule } from './routes/permissions/permissions.module';
 import { RolesModule } from './routes/roles/roles.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { ConfigsModule } from './routes/configs/configs.module';
 
 dotenv.config();
 
@@ -41,7 +43,9 @@ dotenv.config();
       cleanupAfterFailedHandle : true,
       cleanupAfterSuccessHandle : true,
       storage : MemoryStoredFile
-    })
+    }),
+    NotificationsModule,
+    ConfigsModule
   ],
   controllers: [AppController],
   providers: [AppService , IsNotExistsValidator , IsExistsValidator , AtLeastOneValidator],

@@ -115,6 +115,18 @@ export const sharedData = {
         }
       }
     }
+  },
+  otp : {
+    otp_every : 5,
+    otp_times : 4,
+    otp_length : 2
+  },
+  app_routes : {
+    rider : {
+      welcome : "/welcome",
+      home : "/home",
+      error : "/error"
+    }
   }
 };
 

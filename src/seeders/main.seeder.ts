@@ -4,7 +4,7 @@ import { Permission } from '@routes/permissions/entities/permission.entity';
 import { Role } from '@routes/roles/entities/role.entity';
 import { Translation } from '@routes/translations/entities/translation.entity';
 import { User } from '@routes/users/entities/user.entity';
-import { seeders } from '@src/common/seeders';
+import { seeders } from '@src/seeders/tables';
 import { hashPassword } from '@utils/password';
 import { DataSource } from 'typeorm';
 import { Seeder } from 'typeorm-extension';

@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus } from '@
 import { TranslationsService } from './translations.service';
 import { CreateTranslationDto } from './dto/create-translation.dto';
 import { UpdateTranslationDto } from './dto/update-translation.dto';
-import { ServerErrorResponse, SuccessResponse } from '@utils/response';
+import { ApiResponse } from '@src/utils/response';
 
 @Controller('translations')
 export class TranslationsController {
@@ -17,13 +17,18 @@ export class TranslationsController {
     const result = await this.translationsService.findAll();
     
     try {
-      return SuccessResponse({
-        data : result,
-        code : "FETCHED",
-        status_code : HttpStatus.OK
+
+      return new ApiResponse().successResponse({
+        code : "OK",
+        status_code : HttpStatus.OK,
+        data : result!.data
       })
     } catch (error) {
-      ServerErrorResponse({error})
+      return new ApiResponse().serverError({
+        error : error,
+        logout : false,
+        redirect : false,
+      })
     }
   }
   @Get(':id')

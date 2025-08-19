@@ -1,7 +1,9 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Res, ValidationPipe } from '@nestjs/common';
 import { CreateLangDto } from './dto/create-lang.dto';
 import { UpdateLangDto } from './dto/update-lang.dto';
 import { LangsService } from './langs.service';
+import { ApiResponse } from '@src/utils/response';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 
 @Controller('langs')
 export class LangsController {
@@ -16,8 +18,35 @@ export class LangsController {
     return await this.langsService.findAll();
   }
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return this.langsService.findOne(id);
+  async findOne(@Param('id') id: string , @Res({ passthrough: true }) res: FastifyReply,) {
+
+  
+    const result = await this.langsService.findOne(id);
+    try {
+      let response;
+      if (result.status_code == HttpStatus.OK) {
+        response = new ApiResponse().successResponse({
+          code : "OK",
+          data : result.data,
+          status_code : HttpStatus.OK
+        });
+      }
+      else if (result.status_code == HttpStatus.NOT_FOUND){
+        response = new ApiResponse().error({
+          code : "NOT_FOUND",
+          status_code : HttpStatus.NOT_FOUND,
+        });
+      }
+      return res.status(result.status_code).send(response)
+    } catch (error) {
+      return new ApiResponse().serverError({
+        status_code : HttpStatus.INTERNAL_SERVER_ERROR,
+        error,
+        logout : false,
+        redirect : false
+      });
+    }
+
   }
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateLangDto: UpdateLangDto) {

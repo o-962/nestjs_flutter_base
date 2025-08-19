@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ServerErrorResponse } from '@utils/response';
 import { Repository } from 'typeorm';
 import { CreateTranslationDto } from './dto/create-translation.dto';
 import { UpdateTranslationDto } from './dto/update-translation.dto';
 import { Translation } from './entities/translation.entity';
+import { ApiResponse } from '@src/utils/response';
 
 @Injectable()
 export class TranslationsService {
@@ -20,11 +20,15 @@ export class TranslationsService {
   async findAll() {
     try {
       const translations = await this.translationRepo.find();
-      return translations
+      return ApiResponse.serviceResponse({
+        status_code : HttpStatus.FOUND,
+        data : translations
+      })
     } catch (error) {
-      console.log(error);
-      
-      ServerErrorResponse({error})
+      ApiResponse.serviceResponse({
+        status_code : HttpStatus.INTERNAL_SERVER_ERROR,
+        error
+      })
     }
   }
   findOne(id: number) {

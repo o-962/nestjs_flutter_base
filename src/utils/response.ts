@@ -1,184 +1,125 @@
-import { HttpException, HttpStatus } from "@nestjs/common";
+import { HttpException, HttpStatus } from '@nestjs/common';
+import { logError } from './common';
 
+export class ApiResponse {
+  private status_code: number;
+  private code?: string;
+  private message: string;
+  private toast_header?: string;
+  private toast_body?: string;
+  private toast?: boolean;
+  private toast_type?: string;
+  private return_json?: boolean = false;
+  private clear_routes: boolean = false;
+  private data?: Record<string, any> = {};
+  private errors?: any = [];
+  private wait?: boolean = false;
+  private redirect?: string | boolean;
+  private logout: boolean = false;
+  private refresh: boolean = false;
 
-const validationErrorResponse = ({
-  status_code = HttpStatus.UNPROCESSABLE_ENTITY,
-  code = 'VALIDATION_ERROR',
-  message = null,
-  errors,
-  toast_header = null,
-  toast_body = null,
-  returnJson,
-  page,
-  clearRoutes = false,
-  data,
-}: Partial<ServerErrorResponseOptions>) => {
-  let toast = false;
-  if (toast_body || toast_header) {
-    if (!toast_body) {
-      throw new Error("Body")
-    }
-    if (!toast_header) {
-      throw new Error("heatoast_header")
-    }
-    if (toast_body && toast_header) {
-      toast = true;
+  constructor(options ?: BaseResponseOption) {
+    if (options) {
+      this.message = options.message ?? '';
+      this.toast_header = options.toast_header ?? undefined;
+      this.toast_body = options.toast_body ?? undefined;
+      this.toast_type = options.toast_type ?? undefined;
+      this.return_json = options.return_json ?? undefined;
+      this.clear_routes = options.clear_routes ?? false;
+      this.data = options.data ?? {};
+      this.errors = options.errors ?? [];
+      this.wait = options.wait ?? false;
+      this.redirect = options.redirect;
+      this.logout = options.logout ?? false;
+      this.refresh = options.refresh ?? false;
+      
     }
   }
-  const response = {
-    code,
-    status_code,
-    message,
-    toast_body,
-    toast_header,
-    page,
-    data,
-    clearRoutes,
-    errors,
-    toast
-  };
+
+  validationError(options: { errors: any; status_code ?: number }) {
+    this.code = 'VALIDATION_ERROR';
+    this.status_code = options.status_code ?? HttpStatus.UNPROCESSABLE_ENTITY;
+    this.errors = options.errors;
+    
+    return this.buildResponse();
+  }
+  error(options: { errors ?: any; status_code : number ; code : string }) {
+    this.code = options.code;
+    this.status_code = options.status_code;
+    this.errors = options.errors;
+    return this.buildResponse();
+  }
+
+  serverError(options: { error: any; logout : boolean; redirect : string | boolean; status_code ?: number }) {
+    if (options.error instanceof HttpException) {
+      return options.error;
+    }
+    this.code = 'SERVER_ERROR';
+    this.status_code = options.status_code ?? HttpStatus.INTERNAL_SERVER_ERROR;
+    this.logout = options.logout;
+    this.redirect = options.redirect;
+    logError(options.error);
+
+    return this.buildResponse();
+  }
+
+  successResponse(options: { code: string; data ?: Record<string, any>; status_code : number }) {
+    this.code = options.code;
+    this.status_code = options.status_code;
+    this.data = options.data ?? {};
+    return this.buildResponse();
+  }
   
-  if (returnJson) {
-    return response;
-  } else {
-    throw new HttpException(response, status_code);
-  }
-};
-
-
-const SuccessResponse = ({
-  status_code = HttpStatus.OK,
-  code = "success",
-  message,
-  data,
-  toast_body,
-  toast_header,
-  toast_type,
-  refresh,
-  wait = false,
-  clearRoutes,
-  redirect,
-  page = null,
-}: ResponseOptions) => {
-  let toast = false;
-
-  if (toast_body || toast_header || toast_type) {
-    if (!toast_body || !toast_header || !toast_type) {
-      throw new Error(
-        "All toast properties (toast_body, toast_header, toast_type) must be provided when using toast"
-      );
-    }
-    toast = true;
-  }
-
-  if (toast) {
-    wait = true;
-  }
-
-  return {
-    code,
-    status_code,
-    message,
-    toast_body,
-    toast_header,
-    toast,
-    toast_type,
-    refresh,
-    redirect,
-    wait,
-    clearRoutes,
-    page,
-    data,
-  };
-};
-
-
-const ErrorResponse = ({
-  status_code = HttpStatus.NOT_FOUND,
-  code,
-  message = null,
-  errors,
-  toast_header = null,
-  toast_body = null,
-  returnJson = true,
-  data = {},
-  logout = false,
-  clearRoutes,
-  page
-}: ResponseOptions) => {
-  if (!code) {
-    throw new Error("You must specify the 'code' property");
-  }
-
-  if (!message && !toast_header && !toast_body) {
-    throw new Error("You should specify at least one of message, toast_header, or toast_body");
-  }
-
-  const response: BaseResponse = {
-    code,
-    status_code,
-    message,
-    toast_body,
-    toast_header,
-    errors,
-    data,
-    logout,
-    page,
-    clearRoutes,
-  };
-
-  if (returnJson) {
+  private toObject(): BaseResponseOption {
+    const response: any = {
+      status_code: this.status_code,
+      code: this.code,
+    };
+    if (this.message) response.message = this.message;
+    if (this.toast_body) response.toast_body = this.toast_body;
+    if (this.toast_header) response.toast_header = this.toast_header;
+    if (this.toast) response.toast = this.toast;
+    if (this.toast_type) response.toast_type = this.toast_type;
+    if (this.redirect !== undefined) response.redirect = this.redirect;
+    if (this.refresh) response.refresh = this.refresh;
+    if (this.wait) response.wait = this.wait;
+    if (this.errors) response.errors = this.errors;
+    if (this.data && Object.keys(this.data).length > 0) response.data = this.data;
+    if (this.logout) response.logout = this.logout;
+    if (this.clear_routes) response.clear_routes = this.clear_routes;
     return response;
   }
-  
-  throw new HttpException(response, status_code);
-};
 
-
-
-const ServerErrorResponse = ({
-  status_code = HttpStatus.INTERNAL_SERVER_ERROR,
-  code = "SERVER_ERROR",
-  errors = null,
-  toast_header = "An unexpected error occurred",
-  toast_body = "Something went wrong. Please try again later.",
-  returnJson = true,
-  data = {},
-  clearRoutes,
-  error,
-  page = null,
-}: Partial<ServerErrorResponseOptions> = {}) => {
-  const response: BaseResponse = {
-    code,
-    status_code,
-    toast_body,
-    toast_header,
-    data,
-    clearRoutes,
-    errors,
-    page
-  };
-  
-  if (returnJson) {
-    return response;
+  private checkToast() {
+    if (this.toast_body || this.toast_header || this.toast_type) {
+      if (!this.toast_body || !this.toast_header || !this.toast_type) {
+        throw new Error(
+          'All toast properties (toast_body, toast_header, toast_type) must be provided',
+        );
+      }
+      this.toast = true;
+    } else {
+      this.toast = false;
+    }
   }
-  
-  throw new HttpException(response, status_code);
-};
 
-
-const anyResponse = (result: any) => {
-  
-  if (result.status_code >= 200 && result.status_code <= 299) {
-    return result;
+  private buildResponse(): BaseResponseOption {
+    this.checkToast();
+    if (this.return_json || this.status_code < 400) {
+      return this.toObject();
+    }
+    throw new HttpException(this.toObject(), this.status_code);
   }
-  else{
-    return new HttpException(result, result.status_code);
+
+  static serviceResponse(options: { status_code: number; data?: Record<string, any>; errors?: any; error?: any } & Record<string, any>) {
+    if (options.status_code >= 500 && !options.error) {
+      throw new Error("ERROR SHOULD BE SPECIFIED");
+    }
+    if (options.status_code === HttpStatus.UNPROCESSABLE_ENTITY && (!options.errors || Object.keys(options.errors).length === 0)) {
+      throw new Error("ERRORS SHOULD BE SPECIFIED");
+    }
+
+    // options already contains any extra properties via the intersection type
+    return options;
   }
-};
-
-
-
-
-export { anyResponse, ErrorResponse, ServerErrorResponse, SuccessResponse, validationErrorResponse };
-
+}

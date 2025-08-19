@@ -1,10 +1,10 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ErrorResponse, ServerErrorResponse } from '@utils/response';
 import { Repository } from 'typeorm';
 import { CreateLangDto } from './dto/create-lang.dto';
 import { UpdateLangDto } from './dto/update-lang.dto';
 import { Lang } from './entities/lang.entity';
+import { ApiResponse } from '@src/utils/response';
 
 @Injectable()
 export class LangsService {
@@ -30,7 +30,7 @@ export class LangsService {
       }, {} as Record<string, Record<string, string>>);
       return grouped;
     } catch (error) {
-      ServerErrorResponse({error})
+      // ServerErrorResponse({error})
     }
     return `This action returns all langs`;
   }
@@ -40,16 +40,10 @@ export class LangsService {
         where: { lang : id },
         relations: ['translations'],
       });
-      console.log(lang);
-      
       if (!lang) {
-        
-        throw ErrorResponse({
-          code: 'NOT_FOUND',
-          message: 'Language not found',
-          status_code : 404
-        });
-        
+        return ApiResponse.serviceResponse({
+          status_code : HttpStatus.NOT_FOUND,
+        })
       }
       const grouped = {
         [lang!.lang]: {},
@@ -57,9 +51,15 @@ export class LangsService {
       for (const trans of lang!.translations) {
         grouped[lang!.lang][trans.key] = trans.value;
       }
-      return grouped;
+      return ApiResponse.serviceResponse({
+        status_code : HttpStatus.OK,
+        data : grouped
+      });
     } catch (error) {
-      throw ServerErrorResponse({error});
+      return ApiResponse.serviceResponse({
+        status_code : HttpStatus.INTERNAL_SERVER_ERROR,
+        error
+      });
     }
   }
 

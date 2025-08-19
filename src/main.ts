@@ -1,20 +1,18 @@
 import fastifyCookie from '@fastify/cookie';
 import { fastifyHelmet } from '@fastify/helmet';
 import multipart from '@fastify/multipart'; // add this at the top
-import { HttpStatus, ValidationPipe } from '@nestjs/common';
+import fastifyStatic from '@fastify/static';
+import { HttpStatus, Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication, } from '@nestjs/platform-fastify';
 import { useContainer } from 'class-validator';
-import { AppModule } from './app.module';
-import { validationErrorResponse } from './utils/response';
 import { join } from 'path';
+import { AppModule } from './app.module';
 import { appConfig } from './common/data';
-import fastifyStatic from '@fastify/static';
-import { HttpExceptionFilter } from './filters/http-exception.filter';
+import { ApiResponse } from './utils/response';
+import { logError } from './utils/common';
 
-// test v2
 async function bootstrap() {
-
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter(),
@@ -37,7 +35,7 @@ async function bootstrap() {
           },
           {} as Record<string, string[]>,
         );
-        throw validationErrorResponse({ errors: errorsObject });
+        new ApiResponse().validationError({errors : errorsObject});
       },
     }),
   );
@@ -58,6 +56,9 @@ async function bootstrap() {
   await app.register(fastifyHelmet);
 
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
+  
+  
+
   await app.listen(process.env.PORT ?? 3000);
 }
 

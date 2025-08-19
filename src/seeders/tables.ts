@@ -21,11 +21,11 @@ export const seeders = {
     { name: 'banned' },
   ],
   auth: {
-    first_name: 'omarxx',
-    last_name: 'alkhatixxb',
+    first_name: 'Omar',
+    last_name: 'Alkhatib',
     phone_number: '0791195473',
     email: 'o.alkhatib962@gmail.com',
-    user_name: 'o.alkhatib.962',
+    user_name: 'o.alkhatib962',
   },
   user: {
     gender: 'male',

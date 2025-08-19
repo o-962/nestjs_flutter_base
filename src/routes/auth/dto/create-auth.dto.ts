@@ -16,7 +16,8 @@ export class CreateAuthDto {
   @IsNotEmpty()
   last_name: string;
 
-  @IsMobilePhone()
+  @IsMobilePhone('ar-JO')
+  @IsExists(Auth, 'phone_number')
   phone_number: string;
 
   @IsEmail()
