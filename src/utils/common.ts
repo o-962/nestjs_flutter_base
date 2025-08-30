@@ -1,4 +1,5 @@
 import { appConfig, sharedData } from '@src/common/data';
+import { Auth } from '@routes/auth/entities/auth.entity';
 import { promises as fs } from 'fs';
 import { MemoryStoredFile } from 'nestjs-form-data/dist/classes/storage/MemoryStoredFile';
 import * as path from 'path';
@@ -64,24 +65,43 @@ export function otpGenerator(): string {
 
 
 export async function logError(error: any, file: string = "error.log") {
-  file = "/logs/" + file;
-  
-  const logFilePath = appConfig.path + file;
-  
-  const now = new Date();
-  const timestamp = `${now.getFullYear()}-${(now.getMonth() + 1)
-    .toString()
-    .padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')} ` +
-    `${now.getHours().toString().padStart(2, '0')}:` +
-    `${now.getMinutes().toString().padStart(2, '0')}:` +
-    `${now.getSeconds().toString().padStart(2, '0')}`;
-
-  const message = typeof error === 'string' ? error : error.stack || error.message;
-  const logLine = `[${timestamp}] ${message}\n`;
-
   try {
-    fs.appendFile(logFilePath, logLine, 'utf8');
-  } catch (err) {
-    console.error('Failed to write to log file:', err);
+    file = "/logs/" + file;
+  
+    const logFilePath = appConfig.path + file;
+  
+    const now = new Date();
+    const timestamp =
+      `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')} ` +
+      `${now.getHours().toString().padStart(2, '0')}:` +
+      `${now.getMinutes().toString().padStart(2, '0')}:` +
+      `${now.getSeconds().toString().padStart(2, '0')}`;
+  
+    // ✅ Safe error handling
+    let message: string;
+  
+    if (typeof error === 'string') {
+      message = error;
+    } else if (error instanceof Error) {
+      message = error.stack || error.message;
+    } else if (typeof error === 'object' && error !== null) {
+      message = JSON.stringify(error);
+    } else {
+      message = 'Unknown error occurred';
+    }
+  
+    const logLine = `[${timestamp}] ${message}\n`;
+  
+    try {
+      await fs.appendFile(logFilePath, logLine, 'utf8');
+    } catch (err) {
+      console.error('Failed to write to log file:', err);
+    }
+
+  }
+  catch (error){
+    
+    console.log(error);
+    
   }
 }

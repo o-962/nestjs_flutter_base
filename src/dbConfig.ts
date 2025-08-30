@@ -1,4 +1,4 @@
-import { Config } from '@routes/configs/entities/config.entity';
+import { Config } from '@src/ws/api/configs/entities/config.entity';
 import * as dotenv from 'dotenv';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies/snake-naming.strategy';

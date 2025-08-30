@@ -2,24 +2,26 @@ import fastifyCookie from '@fastify/cookie';
 import { fastifyHelmet } from '@fastify/helmet';
 import multipart from '@fastify/multipart'; // add this at the top
 import fastifyStatic from '@fastify/static';
-import { HttpStatus, Logger, ValidationPipe } from '@nestjs/common';
+import { HttpStatus, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication, } from '@nestjs/platform-fastify';
+import { IoAdapter } from '@nestjs/platform-socket.io';
+import { ApiResponse } from '@src/models/api.model';
 import { useContainer } from 'class-validator';
 import { join } from 'path';
 import { AppModule } from './app.module';
 import { appConfig } from './common/data';
-import { ApiResponse } from './utils/response';
-import { logError } from './utils/common';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter(),
   );
+  
+  app.useWebSocketAdapter(new IoAdapter(app));
 
   await app.register(multipart);
-
+  
   app.useGlobalPipes(
     new ValidationPipe({
       errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
@@ -59,7 +61,7 @@ async function bootstrap() {
   
   
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
 }
 
 bootstrap();

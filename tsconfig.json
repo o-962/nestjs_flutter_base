@@ -23,9 +23,10 @@
       "@src/*": ["src/*"],
       "@utils/*": ["src/utils/*"],
       "@test/*" :["src/tests/*"],
-      "@routes/*" : ["src/routes/*"],
+      "@routes/*" : ["src/ws/api/*"],
       "@validators/*" : ["src/validators/*"],
-      "@guards/*" : ["src/guards/*"]
+      "@guards/*" : ["src/guards/*"],
+      "@types/*" : ["src/type/*"],
     }
   }
 }

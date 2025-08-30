@@ -1,10 +1,10 @@
-import { Auth } from '@routes/auth/entities/auth.entity';
-import { Lang } from '@routes/langs/entities/lang.entity';
-import { Permission } from '@routes/permissions/entities/permission.entity';
-import { Role } from '@routes/roles/entities/role.entity';
-import { Translation } from '@routes/translations/entities/translation.entity';
-import { User } from '@routes/users/entities/user.entity';
 import { seeders } from '@src/seeders/tables';
+import { Auth } from '@src/ws/api/auth/entities/auth.entity';
+import { Lang } from '@src/ws/api/langs/entities/lang.entity';
+import { Permission } from '@src/ws/api/permissions/entities/permission.entity';
+import { Role } from '@src/ws/api/roles/entities/role.entity';
+import { Translation } from '@src/ws/api/translations/entities/translation.entity';
+import { User } from '@src/ws/api/users/entities/user.entity';
 import { hashPassword } from '@utils/password';
 import { DataSource } from 'typeorm';
 import { Seeder } from 'typeorm-extension';

@@ -14,7 +14,11 @@ export const seeders = {
       permissions: [{ name: 'read_dashboard' }, ...crud('role')],
     },
     {
-      name: 'student',
+      name: 'driver',
+      permissions: [],
+    },
+    {
+      name: 'rider',
       permissions: [],
     },
     { name: 'special' },
